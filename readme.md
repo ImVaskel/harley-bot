@@ -5,6 +5,21 @@ To run this bot you must have a postgresql Docker container on a network called 
 
 Then fill out the config with the proper info and move it to a file called `config.json`.
 
+Replace the emojis in `emojis.json`, these emojis are roughly the same as the discord defaults for pagination.
+
+```json
+{
+    "arrow_left" :  "⬅️",
+    "arrow_right" : "➡️",
+    "stop" : "⏹️",
+    "double_backward" : "⏪",
+    "double_forward" : "⏩",
+    "information" : "ℹ️",
+    "x-mark" : "❎",
+    "checkmark" : "✅"
+}
+```
+
 ## Run
 
 To run the bot, first build the image with the `build.sh` script. Then run `run.sh` to run the container. 
