@@ -3,6 +3,8 @@
 ## Info
 To run this bot you must have a postgresql Docker container on a network called `postgres` (look into tutorials on this).
 
+The database info is [found here](schema.sql).
+
 Then fill out the config with the proper info and move it to a file called `config.json`.
 
 Replace the emojis in `emojis.json`, these emojis are roughly the same as the discord defaults for pagination.
