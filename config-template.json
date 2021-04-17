@@ -1,0 +1,21 @@
+{
+"token" : "",
+"prefix" : "",
+"webhook" : "",
+"nasa" : "",
+"zane" : "",
+"dagpi" : "",
+"db" : {
+    "user" : "",
+    "password" : "",
+    "database" : "",
+    "host" : "",
+    "port" : 5432
+  },
+"cogs" : [
+  "cogs.automod", "cogs.info", "cogs.help_comm", "cogs.checks", "cogs.GuildListeners", "cogs.error_handler", "cogs.meta",
+  "cogs.fun", "cogs.owner", "cogs.moderator", "cogs.settings", "cogs.listeners.listeners", "jishaku",
+  "cogs.listeners.channels", "cogs.listeners.member", "cogs.listeners.moderation", "cogs.listeners.messages", "cogs.listeners.guild"
+],
+"ipc_key" : ""
+}
