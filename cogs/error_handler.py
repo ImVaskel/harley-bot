@@ -38,9 +38,10 @@ class ErrorHandler(commands.Cog):
             ctx.command.parent is not None and ctx.command.parent.has_error_handler()
         )
 
-        if any(conditions): return
-
         if isinstance(error, self.ignored_errors):
+            return
+
+        if any(conditions):
             return
 
         elif isinstance(error, self.str_errors):
