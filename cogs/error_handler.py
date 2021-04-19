@@ -14,7 +14,7 @@ class ErrorHandler(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.ignored_errors = (
-            commands.CommandNotFound
+            commands.CommandNotFound,
         )
         self.str_errors = (
             commands.NotOwner, commands.BadArgument, commands.MissingRequiredArgument, commands.CommandOnCooldown, Blacklisted, commands.MissingPermissions,
@@ -33,13 +33,13 @@ class ErrorHandler(commands.Cog):
 
         error = getattr(error, "original", error)
 
+        if isinstance(error, self.ignored_errors):
+            return
+
         conditions = (
             ctx.command is not None and ctx.command.has_error_handler(),
             ctx.command.parent is not None and ctx.command.parent.has_error_handler()
         )
-
-        if isinstance(error, self.ignored_errors):
-            return
 
         if any(conditions):
             return
