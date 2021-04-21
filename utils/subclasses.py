@@ -5,7 +5,7 @@ import collections
 
 from random import choice
 from datetime import datetime
-from typing import Optional, List, Union
+from typing import Dict
 
 import asyncdagpi
 import discord
@@ -17,7 +17,7 @@ import aiohttp
 import asyncio
 import os
 
-from discord import AllowedMentions, Message, Embed, File, MessageReference
+from discord import Message
 
 from functools import cached_property
 
@@ -61,7 +61,7 @@ class HarleyBot(commands.AutoShardedBot):
         self.cache = {}
         self.blacklisted = {}
         self.start_time = datetime.utcnow()
-        self.edit_mapping = CappedDict(max_size=100)
+        self.edit_mapping: Dict[Message, Message] = CappedDict(max_size=100)
 
         self.config = json.load(open("config.json"))
         self.custom_emojis = json.load(open("emojis.json"))
@@ -199,25 +199,32 @@ class HarleyContext(commands.Context):
     def get_channel(self, id):
         return self.guild.get_channel(id)
 
-    async def reply(self, content= None, *args, **kwargs):
+    async def reply(self, content= None, **kwargs):
         
         if self.bot.edit_mapping.get(self.message):
-            msg = self.bot.edit_mapping.get(self.message)
-            return await msg.edit(content=content, *args, **kwargs)
 
-        msg = await super().reply(content=content, *args, **kwargs)
+            if "embed" not in kwargs:
+                kwargs["embed"] = None # why, this is literally the same as popping it
+
+            msg = self.bot.edit_mapping.get(self.message)
+            return await msg.edit(content=content, **kwargs)
+
+        msg = await super().reply(content=content, **kwargs)
 
         self.bot.edit_mapping[self.message] = msg
         
         return msg
 
-    async def send(self, *args, **kwargs):
+    async def send(self, content = None, **kwargs):
 
         if self.bot.edit_mapping.get(self.message):
+            if "embed" not in kwargs:
+                kwargs["embed"] = None
+            
             msg = self.bot.edit_mapping.get(self.message)
-            return await msg.edit(*args, **kwargs)
+            return await msg.edit(content=content, **kwargs)
 
-        msg = await super().send(*args, **kwargs)
+        msg = await super().send(content=content, **kwargs)
 
         self.bot.edit_mapping[self.message] = msg
         
@@ -264,6 +271,7 @@ class CustomEmbed(discord.Embed):
         """Good fucking lord, why did i make this"""
         await message.reply(embed=self, **kwargs)
 
+# Shamelessly stolen from https://gist.github.com/bencharb/729971d4a9e4633ea08a
 class CappedDict(collections.OrderedDict):
     default_max_size = 100
 
