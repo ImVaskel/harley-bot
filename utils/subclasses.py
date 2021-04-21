@@ -1,9 +1,11 @@
 from datetime import datetime
 import logging
 import traceback
+import collections
 
 from random import choice
 from datetime import datetime
+from typing import Optional, List, Union
 
 import asyncdagpi
 import discord
@@ -14,6 +16,8 @@ import asyncpg
 import aiohttp
 import asyncio
 import os
+
+from discord import AllowedMentions, Message, Embed, File, MessageReference
 
 from functools import cached_property
 
@@ -57,6 +61,7 @@ class HarleyBot(commands.AutoShardedBot):
         self.cache = {}
         self.blacklisted = {}
         self.start_time = datetime.utcnow()
+        self.edit_mapping = CappedDict(max_size=100)
 
         self.config = json.load(open("config.json"))
         self.custom_emojis = json.load(open("emojis.json"))
@@ -194,6 +199,30 @@ class HarleyContext(commands.Context):
     def get_channel(self, id):
         return self.guild.get_channel(id)
 
+    async def reply(self, content= None, *args, **kwargs):
+        
+        if self.bot.edit_mapping.get(self.message):
+            msg = self.bot.edit_mapping.get(self.message)
+            return await msg.edit(content=content, *args, **kwargs)
+
+        msg = await super().reply(content=content, *args, **kwargs)
+
+        self.bot.edit_mapping[self.message] = msg
+        
+        return msg
+
+    async def send(self, *args, **kwargs):
+
+        if self.bot.edit_mapping.get(self.message):
+            msg = self.bot.edit_mapping.get(self.message)
+            return await msg.edit(*args, **kwargs)
+
+        msg = await super().send(*args, **kwargs)
+
+        self.bot.edit_mapping[self.message] = msg
+        
+        return msg
+
     async def confirm(self, text=None, **kwargs):
         msg = None
 
@@ -234,3 +263,27 @@ class CustomEmbed(discord.Embed):
     async def reply(self, message, **kwargs):
         """Good fucking lord, why did i make this"""
         await message.reply(embed=self, **kwargs)
+
+class CappedDict(collections.OrderedDict):
+    default_max_size = 100
+
+    def __init__(self, *args, **kwargs):
+        self.max_size = kwargs.pop('max_size', self.default_max_size)
+        super(CappedDict, self).__init__(*args, **kwargs)
+        
+    def __setitem__(self, key, val):
+        if key not in self:
+            max_size = self.max_size - 1  # so the dict is sized properly after adding a key
+            self._prune_dict(max_size)
+        super(CappedDict, self).__setitem__(key, val)
+        
+    def update(self, **kwargs):
+        super(CappedDict, self).update(**kwargs)
+        self._prune_dict(self.max_size)
+
+        
+    def _prune_dict(self, max_size):
+        if len(self) >= max_size:
+            diff = len(self) - max_size
+            for k in self.keys()[:diff]:
+                del self[k]
