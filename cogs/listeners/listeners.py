@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from discord import Webhook, AsyncWebhookAdapter
-from utils.subclasses import CustomEmbed
+from utils.subclasses import CustomEmbed, HarleyBot, HarleyContext
 import logging
 
 TIME_TEMPLATE = "%b %d, %Y %I:%M %p"
@@ -9,7 +9,7 @@ MENTION_TEMPLATE = "<@{}>"
 
 class Listeners(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: HarleyBot = bot
 
     @commands.Cog.listener('on_message_edit')
     async def reinvoke_on_edit(self, before, after):
@@ -83,6 +83,18 @@ class Listeners(commands.Cog):
                     description=f"My prefixes are `@Harley ` and `{discord.utils.escape_mentions(prefixes[2])}`."
                 )
             )
+    
+    @commands.Cog.listener('on_message_delete')
+    async def delete_message_on_invoking_delete(self, message: discord.Message):
+        if message.author.bot or message.author == self.bot.user:
+            return
+        
+        ctx: HarleyContext = await self.bot.get_context(message)
+
+        if ctx.mapped_message is not None:
+            await ctx.mapped_message.delete()
+
+            self.bot.edit_mapping.pop(ctx.message.id, None)
     
 def setup(bot):
     bot.add_cog(Listeners(bot))

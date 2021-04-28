@@ -2,10 +2,11 @@ from datetime import datetime
 import logging
 import traceback
 import collections
+import sys
 
 from random import choice
 from datetime import datetime
-from typing import Dict
+from typing import Dict, Optional
 
 import asyncdagpi
 import discord
@@ -18,8 +19,6 @@ import asyncio
 import os
 
 from discord import Message
-
-from functools import cached_property
 
 os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
 os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True"
@@ -66,8 +65,7 @@ class HarleyBot(commands.AutoShardedBot):
         self.config = json.load(open("config.json"))
         self.custom_emojis = json.load(open("emojis.json"))
 
-        self._loop = asyncio.get_event_loop()
-        self._session = aiohttp.ClientSession(loop=self._loop)
+        self._session = aiohttp.ClientSession(loop=self.loop)
 
         self.ipc = ipc.Server(self, self.config.get("ipc_key"))
         self.load_extension("cogs.ipc")
@@ -76,6 +74,8 @@ class HarleyBot(commands.AutoShardedBot):
             **self.config['db']
         ))
 
+        self._dagpi = asyncdagpi.Client(self.config['dagpi'], logging=False)
+
         
         self.cache.update({
             "default": {"prefix": self.config['prefix']}
@@ -83,14 +83,14 @@ class HarleyBot(commands.AutoShardedBot):
 
         self.load_extension("utils.utils")
 
-        self.loop.run_until_complete(self.__ainit__())
+        self.loop.run_until_complete(self._ainit())
 
         self.load_cogs()
 
     async def get_context(self, message, *, cls=None):
         return await super().get_context(message, cls=cls or HarleyContext)
 
-    async def __ainit__(self):
+    async def _ainit(self):
         """Async init"""
         configs = await self.db.fetch(
             "SELECT * FROM config"
@@ -104,8 +104,6 @@ class HarleyBot(commands.AutoShardedBot):
         blacklisted = await self.db.fetch("SELECT * FROM blacklist")
 
         self._hook = await self.utils.get_hook()
-
-        self._dagpi = asyncdagpi.Client(self.config['dagpi'], logging=False)
 
         for user in blacklisted:
             self.blacklisted.update(
@@ -125,7 +123,7 @@ class HarleyBot(commands.AutoShardedBot):
     
     async def on_error(self, event_method, *args, **kwargs):
         self._logger.error(f"An Error Occurred: \n {event_method}\n")
-        traceback.print_exc()
+        self._logger.error(str(sys.exc_info()))
 
     def add_cog(self, cog):
         super(HarleyBot, self).add_cog(cog)
@@ -160,23 +158,19 @@ class HarleyBot(commands.AutoShardedBot):
     async def on_ipc_ready(self):
         self._logger.info("IPC Ready.")
 
-    @cached_property
+    @property
     def session(self):
         return self._session
     
-    @cached_property
-    def loop(self):
-        return self._loop
-    
-    @cached_property
+    @property
     def hook(self):
         return self._hook
-    
-    @cached_property
+
+    @property
     def logger(self):
         return self._logger
-
-    @cached_property
+    
+    @property
     def dagpi(self):
         return self._dagpi
     
@@ -189,6 +183,12 @@ class HarleyContext(commands.Context):
     @property
     def db(self):
         return self.bot.db
+
+    @property
+    def mapped_message(self) -> Optional[Message]:
+        """ Returns the mapped message to this ctx, if any."""
+        return self.bot.edit_mapping.get(self.message)
+
 
     async def refresh(self):
         await self.bot.refresh_cache_for(self.guild.id)
@@ -207,7 +207,8 @@ class HarleyContext(commands.Context):
                 kwargs["embed"] = None # why, this is literally the same as popping it
 
             msg = self.bot.edit_mapping.get(self.message)
-            return await msg.edit(content=content, **kwargs)
+            await msg.edit(content=content, **kwargs)
+            return msg
 
         msg = await super().reply(content=content, **kwargs)
 
@@ -222,7 +223,8 @@ class HarleyContext(commands.Context):
                 kwargs["embed"] = None
             
             msg = self.bot.edit_mapping.get(self.message)
-            return await msg.edit(content=content, **kwargs)
+            await msg.edit(content=content, **kwargs)
+            return msg
 
         msg = await super().send(content=content, **kwargs)
 

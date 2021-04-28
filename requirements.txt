@@ -5,7 +5,7 @@ discord-ext-ipc==2.0.0
 discord-ext-menus @ git+https://github.com/Rapptz/discord-ext-menus@6f2b873bf0d28903eb752aa1166b3aac26dc9007
 discord-flags==2.1.1
 jishaku @ git+https://github.com/Gorialis/jishaku@98a4e0f2f186d961231db20b61cee80450f69fb9
-mystbin.py==1.0.1
+mystbin.py==2.1.0
 Markdown==3.3.3
 MarkupSafe==1.1.1
 asyncdagpi
