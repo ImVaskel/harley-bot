@@ -1,4 +1,3 @@
-import discord
 import markdown
 from discord.ext import commands
 from utils.subclasses import CustomEmbed as Embed
@@ -18,14 +17,14 @@ class Fun(commands.Cog):
 
         json = await (await self.bot.session.get(url)).json()
 
-        if error := json.get("msg"): 
+        if error := json.get("msg"):
             return await ctx.reply(
                 embed = Embed(title="Error", description = error)
             )
         
         await ctx.reply(embed = Embed(
             title = json.get("title", "None"),
-            description =  json.get("explanation", "No explanation")
+            description = json.get("explanation", "No explanation")
         ).set_image(url=json.get("url")))
 
     @commands.command()

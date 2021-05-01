@@ -5,10 +5,9 @@ import discord
 from discord import AuditLogAction
 from discord.ext import commands
 from discord.ext.commands import Cog
-from discord.utils import escape_markdown
 from utils.enums import LoggingEnum
 from utils.subclasses import CustomEmbed
-from utils.utils import get_audit, title_format
+from utils.utils import get_audit
 
 
 class MessagesListener(commands.Cog):

@@ -1,8 +1,8 @@
-from enum import IntFlag, auto, _decompose
+from enum import IntFlag, _decompose, auto
+
 
 class _BaseEnum(IntFlag):
-    pass
-
+    
     def __iter__(self):
         cls = self.__class__
 

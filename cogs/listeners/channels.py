@@ -1,13 +1,13 @@
-from utils.utils import get_audit, title_format
-from discord import abc
+from contextlib import suppress
 from datetime import datetime
+
 import discord
+from discord import AuditLogAction
 from discord.ext import commands
-from discord.ext.commands import Cog 
+from discord.ext.commands import Cog
 from utils.enums import LoggingEnum
 from utils.subclasses import CustomEmbed
-from discord import AuditLogAction
-from contextlib import suppress
+from utils.utils import get_audit, title_format
 
 TIME_TEMPLATE = "%b %d, %Y %I:%M %p"
 
@@ -42,7 +42,7 @@ class ChannelsListener(commands.Cog):
 
             entry = None
 
-            if not LoggingEnum.CHANNELS in options or log_channel is None:
+            if LoggingEnum.CHANNELS not in options or log_channel is None:
                 return
             
             if guild.me.guild_permissions.view_audit_log:
@@ -86,8 +86,8 @@ class ChannelsListener(commands.Cog):
             else:
                 embed.add_field(
                     embed.add_field(
-                    name="**Moderator**",
-                    value="Cannot access the audit log to get more info."
+                        name = "**Moderator**",
+                        value = "Cannot access the audit log to get more info."
                     )
                 )
             
@@ -105,10 +105,7 @@ class ChannelsListener(commands.Cog):
 
             log_channel = guild.get_channel(id)
 
-            entry = None
-            url = None
-
-            if not LoggingEnum.CHANNELS in options or log_channel is None:
+            if LoggingEnum.CHANNELS not in options or log_channel is None:
                 return
             
             entry = await get_audit(channel.guild, AuditLogAction.channel_create)
@@ -161,10 +158,7 @@ class ChannelsListener(commands.Cog):
 
             log_channel = guild.get_channel(id)
 
-            entry = None
-            url = None
-
-            if not LoggingEnum.CHANNELS in options or log_channel is None:
+            if LoggingEnum.CHANNELS not in options or log_channel is None:
                 return
             
             if guild.me.guild_permissions.view_audit_log:
@@ -198,7 +192,7 @@ class ChannelsListener(commands.Cog):
 
             embed.set_author(
                 name=entry.user.name, url=entry.user.avatar_url
-            )        
+            )
 
             with suppress(discord.Forbidden):
                 await log_channel.send(embed=embed)

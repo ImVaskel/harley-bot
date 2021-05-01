@@ -1,7 +1,7 @@
-import asyncio
 import json
-import discord
-from discord.ext import commands, menus, flags
+
+from discord.ext import commands, flags, menus
+
 from utils.subclasses import CustomEmbed
 
 BLANK_STR = ""
@@ -32,7 +32,7 @@ class PaginatedHelp(menus.MenuPages, inherit_buttons=False): # type: ignore  ## 
         )
 
         embed.add_field(
-            name="What do the emojis do?", 
+            name="What do the emojis do?",
             value = (
                 f"{EMOJIS['arrow_left']} - Goes one page backward.\n"
                 f"{EMOJIS['double_backward']} - Goes to the first page.\n"
@@ -100,8 +100,6 @@ class BotHelpSource(menus.ListPageSource):
 
             commands = category.get(list(category.keys())[0])
 
-            aliases = f'[{" | ".join(alias for alias in category.aliases)}]' if getattr(category, 'aliases', None) is not None else ""
-
             embed.add_field(
                 name=f"**{category_name}** [{' | '.join(alias for alias in cate.aliases)}]" if getattr(cate, 'aliases', None)
                 is not None else f"**{category_name}**",
@@ -109,8 +107,7 @@ class BotHelpSource(menus.ListPageSource):
                 value = f"{getattr(cate, 'description', '')}" + "\n" + " ".join(f'`{command.qualified_name}`' for command in commands) or "`None`",
                 inline=False
             )
-        embed.set_footer(text=f"Page {menu.current_page + 1} / {self.get_max_pages()}" if
-            self.get_max_pages() > 0 else "Page 0/0")
+        embed.set_footer(text=f"Page {menu.current_page + 1} / {self.get_max_pages()}" if self.get_max_pages() > 0 else "Page 0/0")
         
         return embed
 
@@ -124,8 +121,10 @@ class CogHelpSource(menus.ListPageSource):
         offset = menu.current_page * self.per_page
 
         embed = CustomEmbed(
-            title=f"{self.cog.qualified_name} " +
-            f"[{' | '.join([alias for alias in self.cog.aliases ])}]" if getattr(self.cog, 'aliases', None) is not None else ""
+            title=(
+                f"{self.cog.qualified_name} "
+                f"[{' | '.join([alias for alias in self.cog.aliases ])}]" if getattr(self.cog, 'aliases', None) is not None else ""
+            )
         )
 
         if (des := getattr(self.cog, "description")) is not None:
@@ -141,8 +140,7 @@ class CogHelpSource(menus.ListPageSource):
                 inline = False
             )
         
-        embed.set_footer(text=f"Page {menu.current_page + 1} / {self.get_max_pages()}" if
-            self.get_max_pages() > 0 else "Page 0/0")
+        embed.set_footer(text=f"Page {menu.current_page + 1} / {self.get_max_pages()}" if self.get_max_pages() > 0 else "Page 0/0")
         
         return embed
 
@@ -150,9 +148,9 @@ class CustomHelp(commands.HelpCommand):
     def __init__(self, **options):
 
         attrs = {
-            "cooldown" : commands.Cooldown(1, 5, commands.BucketType.member),
-            "usage" : "help `command, category`",
-            "help" : "The help command"
+            "cooldown": commands.Cooldown(1, 5, commands.BucketType.member),
+            "usage": "help `command, category`",
+            "help": "The help command"
         }
 
         super().__init__(command_attrs=attrs, **options)
@@ -168,7 +166,7 @@ class CustomHelp(commands.HelpCommand):
             for key, value in entry.items():
                 if len(value) != 0:
                     filtered.append({
-                        key : value
+                        key: value
                     })
 
         menu = PaginatedHelp(BotHelpSource(filtered, clean_prefix=clean_prefix))

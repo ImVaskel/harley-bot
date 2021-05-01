@@ -1,4 +1,3 @@
-from re import L
 import discord
 from discord.ext import commands
 from utils.enums import LoggingEnum

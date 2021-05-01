@@ -4,7 +4,6 @@ import json
 import logging
 import os
 import sys
-import traceback
 from datetime import datetime
 from random import choice
 from typing import Dict, Optional
@@ -249,9 +248,7 @@ class HarleyContext(commands.Context):
         try:
             reaction, user = await self.bot.wait_for("reaction_add",
                                                      check=(
-                                                         lambda r, u: r.message.id == msg.id and
-                                                                      u.id == self.author.id and
-                                                                      str(r) in reactions
+                                                         lambda r, u: r.message.id == msg.id and u.id == self.author.id and str(r) in reactions
                                                      ), timeout=30)
             return bool(reactions.index(str(reaction)))
         except asyncio.TimeoutError:

@@ -1,10 +1,11 @@
 import time
 from datetime import datetime
+
 import discord
-from discord.ext import commands
 import mystbin
-import json
+
 from utils.enums import LoggingEnum
+
 
 class Utilities:
     def __init__(self, bot):
@@ -30,7 +31,7 @@ class Utilities:
 TIME_TEMPLATE = "%b %d, %Y %I:%M %p"
 YES_NO = ["No", "Yes"]
 
-def title_format(input : str):
+def title_format(input: str):
     """Formats a string from `blah_blah` to `Blah Blah`"""
     return input.title().replace("_", " ").replace("-", " ")
 

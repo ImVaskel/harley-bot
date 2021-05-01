@@ -22,10 +22,9 @@ class Meta(commands.Cog):
                 description = f"Pong! `{self.bot.latency*1000:.2f} ms`"
         ))
 
-    @commands.command(aliases =
-        (
+    @commands.command(aliases = (
             "info",
-        ))
+    ))
     async def botinfo(self, ctx):
         delta_uptime = datetime.utcnow() - self.bot.start_time
         hours, remainder = divmod(int(delta_uptime.total_seconds()), 3600)

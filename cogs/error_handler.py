@@ -1,12 +1,10 @@
-import re
-from discord.utils import get
-from utils.CustomErrors import Blacklisted
-import discord
-from discord.ext import commands, flags
-from utils.subclasses import CustomEmbed
-import traceback
 import logging
+import traceback
 from functools import cached_property
+
+from discord.ext import commands, flags
+from utils.CustomErrors import Blacklisted
+from utils.subclasses import CustomEmbed
 
 CODEBLOCK = "```fix\n{}```"
 
@@ -47,8 +45,7 @@ class ErrorHandler(commands.Cog):
         elif isinstance(error, self.str_errors):
             return await ctx.reply(embed= CustomEmbed(
                 description = str(error)
-                )
-            )
+            ))
                 
         else:
 

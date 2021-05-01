@@ -1,13 +1,11 @@
-from cogs.error_handler import CODEBLOCK
-from discord import embeds, utils
-from discord.ext.commands.errors import RoleNotFound
-from utils.enums import LoggingEnum
+import re
+
 import discord
 from discord.ext import commands
-from utils.subclasses import CustomEmbed
+from discord.ext.commands.errors import RoleNotFound
 from utils.CustomConverters import OptionsConverter
-import re
-import json
+from utils.enums import LoggingEnum
+from utils.subclasses import CustomEmbed
 from utils.utils import title_format
 
 NEWLINE = "\n"
@@ -22,8 +20,8 @@ class PrefixConverter(commands.Converter):
 
         if parsed:
             raise commands.BadArgument(
-            "Prefix cannot contain a reserved string."
-        )
+                "Prefix cannot contain a reserved string."
+            )
 
         return argument
     
@@ -34,7 +32,8 @@ class MuteRoleConverter(commands.Converter):
 
             if role >= ctx.me.top_role:
                 raise commands.BadArgument(
-            "The role cannot be above or equal to my top role in the hierarchy.")
+                    "The role cannot be above or equal to my top role in the hierarchy."
+                )
             elif role >= ctx.author.top_role:
                 raise commands.BadArgument(
                     "The role cannot be above or equal to your top role in the hierarchy.")
@@ -50,7 +49,7 @@ class Settings(commands.Cog):
     @commands.command()
     @commands.has_guild_permissions(manage_guild=True)
     @commands.guild_only()
-    async def prefix(self, ctx, prefix : PrefixConverter):
+    async def prefix(self, ctx, prefix: PrefixConverter):
         """Sets the guilds prefix, use quotes to get spaces in the prefix. Eg: `prefix "harley "`"""
         await self.bot.db.execute(
             "UPDATE config SET prefix = $1 WHERE id = $2", prefix, ctx.guild.id
@@ -71,15 +70,15 @@ class Settings(commands.Cog):
     @log_group.command(name="set")
     @commands.has_guild_permissions(manage_guild=True)
     @commands.guild_only()
-    async def set_channel(self, ctx, channel : discord.TextChannel):
+    async def set_channel(self, ctx, channel: discord.TextChannel):
         """Sets the channel for logging.
         
         NOTE: The bot needs the `view audit log` permission to log. If it doesn't have this permission, it will not send logs.
         """
         if not channel.permissions_for(ctx.me).send_messages:
             raise commands.BadArgument(
-        "I cannot send messages there!"
-        )
+                "I cannot send messages there!"
+            )
 
         await self.bot.db.execute("UPDATE config SET logid = $2 WHERE id = $1", ctx.guild.id, channel.id)
         await self.bot.refresh_cache_for(ctx.guild.id)
@@ -91,7 +90,7 @@ class Settings(commands.Cog):
     @log_group.command(name="options")
     @commands.has_guild_permissions(manage_guild=True)
     @commands.guild_only()
-    async def log_options(self, ctx, options : commands.Greedy[OptionsConverter]):
+    async def log_options(self, ctx, options: commands.Greedy[OptionsConverter]):
         """
         Sets up logging options. Pass options you want and don't pass the ones that you don't want
         
@@ -131,7 +130,7 @@ class Settings(commands.Cog):
         await self.bot.refresh_cache_for(ctx.guild.id)
 
         await ctx.reply(embed=CustomEmbed(
-            description = f"Removed log channel."
+            description = "Removed log channel."
         ))
     
     @log_group.command(name="info")
@@ -146,7 +145,7 @@ class Settings(commands.Cog):
         embed = CustomEmbed(
             title="Logging Info",
             description=(
-                f"Channel - {channel_info}\n" 
+                f"Channel - {channel_info}\n"
                 "```\n"
                 f"Options: \n{NEWLINE.join([title_format(option) for option in list(options)])}\n"
                 "```"
@@ -164,7 +163,7 @@ class Settings(commands.Cog):
     @set_group.command(name="mute")
     @commands.has_guild_permissions(manage_guild=True)
     @commands.guild_only()
-    async def set_mute(self, ctx, *, role : MuteRoleConverter):
+    async def set_mute(self, ctx, *, role: MuteRoleConverter):
         """Sets the muted role.
         
         ``Note``: This role has the `send messages` and `add reactions` permissions taken away.

@@ -1,6 +1,6 @@
-import discord
 from discord.ext import commands
 from utils.CustomErrors import Blacklisted
+
 
 class Checks(commands.Cog):
     def __init__(self, bot):

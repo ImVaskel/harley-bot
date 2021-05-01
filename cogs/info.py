@@ -90,7 +90,7 @@ class Info(commands.Cog):
         await ctx.reply(embed = embed)
 
     @commands.command()
-    async def avatar(self, ctx: HarleyContext, user : Union[discord.Member, discord.User] = None):
+    async def avatar(self, ctx: HarleyContext, user: Union[discord.Member, discord.User] = None):
         """Returns the users avatar, can be a user or member."""
         user = user or ctx.author
 
@@ -100,7 +100,7 @@ class Info(commands.Cog):
         ).set_image(url=user.avatar_url))
 
     @commands.command()
-    async def emoji(self, ctx : HarleyContext, emoji : discord.PartialEmoji):
+    async def emoji(self, ctx: HarleyContext, emoji: discord.PartialEmoji):
         await ctx.reply(
             embed = CustomEmbed(
                 title=emoji.name,

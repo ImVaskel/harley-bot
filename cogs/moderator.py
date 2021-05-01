@@ -1,15 +1,14 @@
-from asyncio import tasks
+import asyncio
+import collections
 import datetime
+from contextlib import suppress
+from typing import Optional
+
+import asyncpg
 import discord
 from discord.ext import commands, flags, tasks
 from utils.CustomConverters import HierarchyMemberConverter, TimeConverter
 from utils.subclasses import CustomEmbed
-import collections
-from typing import Optional
-import asyncio
-import datetime
-import asyncpg
-from contextlib import suppress
 
 POLL_PERIOD = 900
 
@@ -29,7 +28,7 @@ class Moderator(commands.Cog):
         await discord.utils.sleep_until(when)
 
         query = '''
-                DELETE FROM mutes 
+                DELETE FROM mutes
                 WHERE guildId = $1
                 AND userid = $2
                 '''
@@ -54,7 +53,7 @@ class Moderator(commands.Cog):
         later = now + datetime.timedelta(seconds=POLL_PERIOD)
 
         query = '''
-                SELECT * FROM mutes 
+                SELECT * FROM mutes
                 WHERE guildId = $1
                 AND endtime > $2
                 AND endtime < $3
@@ -179,7 +178,6 @@ class Moderator(commands.Cog):
     @commands.bot_has_guild_permissions(ban_members=True)
     async def softban(self, ctx, member: HierarchyMemberConverter, **flags):
         """Bans and unbans a user, thusly deleting their messages."""
-        notified = False
 
         await member.ban(reason=flags.get("reason", "None Given"))
         await member.unban()
@@ -198,7 +196,7 @@ class Moderator(commands.Cog):
         """
         Mutes a member for the specified time format is `6d`
 
-        Valid time specifiers are `d`, `m`, `s`, `h` 
+        Valid time specifiers are `d`, `m`, `s`, `h`
         """
         muted_role = ctx.guild.get_role(ctx.cache.get('muteid'))
 

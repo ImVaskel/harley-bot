@@ -1,12 +1,13 @@
+from contextlib import suppress
+from datetime import datetime
+
 import discord
+from discord import AuditLogAction
 from discord.ext import commands
-from discord.utils import get
 from utils.enums import LoggingEnum
 from utils.subclasses import CustomEmbed
-from discord import AuditLogAction
-from contextlib import suppress
-from datetime import date, datetime
 from utils.utils import get_audit
+
 
 class ModerationListeners(commands.Cog):
     def __init__(self, bot):
@@ -18,9 +19,9 @@ class ModerationListeners(commands.Cog):
         if not guild.me.guild_permissions.view_audit_log:
             return
 
-        if not LoggingEnum.NONE in (options := self.bot.utils.get_enum(guild.id)) and (id := self.bot.cache[guild.id].get('logid')) is not None:
+        if LoggingEnum.NONE not in (options := self.bot.utils.get_enum(guild.id)) and (id := self.bot.cache[guild.id].get('logid')) is not None:
         
-            if not LoggingEnum.MODERATION in options:
+            if LoggingEnum.MODERATION not in options:
                 return
 
             channel = self.bot.get_channel(id)
@@ -35,7 +36,7 @@ class ModerationListeners(commands.Cog):
                 description = (
                     f"User: {user} [{user.id}]\n"
                     f"Moderator: {entry.user}"
-                    f"Reason: {getattr(entry, 'reason', 'None')}\n" 
+                    f"Reason: {getattr(entry, 'reason', 'None')}\n"
                 ), timestamp=datetime.utcnow()
             ).set_thumbnail(url=user.avatar_url)
 
@@ -52,14 +53,11 @@ class ModerationListeners(commands.Cog):
         if not guild.me.guild_permissions.view_audit_log:
             return
 
-        if not LoggingEnum.NONE in (options := self.bot.utils.get_enum(guild.id)) and (id := self.bot.cache[guild.id].get('logid')) is not None:
+        if LoggingEnum.NONE not in (options := self.bot.utils.get_enum(guild.id)) and (id := self.bot.cache[guild.id].get('logid')) is not None:
         
-            if not LoggingEnum.MODERATION in options:
+            if LoggingEnum.MODERATION not in options:
                 return
-            
-            action = None
-            no_perms = False
-
+    
             channel = self.bot.get_channel(id)
 
             if channel is None:
@@ -71,7 +69,7 @@ class ModerationListeners(commands.Cog):
                 title="**Member Unbanned**",
                 description = (
                     f"User: {user} [{user.id}]\n"
-                    f"Reason: {getattr(action, 'reason', 'None')}\n" 
+                    f"Reason: {getattr(action, 'reason', 'None')}\n"
                 ), timestamp=datetime.utcnow()
             ).set_thumbnail(url=user.avatar_url)
 
@@ -91,9 +89,9 @@ class ModerationListeners(commands.Cog):
         if not member.guild.me.guild_permissions.view_audit_log:
             return
 
-        if not LoggingEnum.NONE in (options := self.bot.utils.get_enum(member.guild.id)) and (id := self.bot.cache[member.guild.id].get('logid')) is not None:
+        if LoggingEnum.NONE not in (options := self.bot.utils.get_enum(member.guild.id)) and (id := self.bot.cache[member.guild.id].get('logid')) is not None:
 
-            if not LoggingEnum.MODERATION in options:
+            if LoggingEnum.MODERATION not in options:
                 return
             
             channel = self.bot.get_channel(id)
@@ -111,7 +109,7 @@ class ModerationListeners(commands.Cog):
                 description = (
                     f"User: {member} [{member.id}]\n"
                     f"Moderator: {entry.user} [{entry.user.id}]"
-                    f"Reason: {getattr(entry, 'reason', 'None')}\n" 
+                    f"Reason: {getattr(entry, 'reason', 'None')}\n"
                 ), timestamp=datetime.utcnow()
             ).set_thumbnail(url=member.avatar_url)
 

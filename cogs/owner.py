@@ -1,10 +1,11 @@
-import discord
-from discord.ext import commands, flags
 from typing import Union
 
+import discord
+from discord.ext import commands, flags
 from discord.member import Member
 from discord.user import User
 from utils.subclasses import CustomEmbed, HarleyContext
+
 
 class Owner(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
@@ -60,7 +61,7 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
     @dev.command(aliases = (
         "clear", "cleanup"
     ), cls=flags.FlagCommand)
-    async def purge(self, ctx : commands.Context, num: int, **flags):
+    async def purge(self, ctx: commands.Context, num: int, **flags):
         """Purges my messages in the channel"""
         try:
             msgs = len(await ctx.channel.purge(limit=num, check = lambda m: m.author == self.bot.user, bulk=False))
