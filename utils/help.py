@@ -14,7 +14,7 @@ def safe_get(input, index, default=None):
     except IndexError:
         return default
 
-class PaginatedHelp(menus.MenuPages, inherit_buttons=False):
+class PaginatedHelp(menus.MenuPages, inherit_buttons=False): # type: ignore  ## mypy doesn't like metaclasses.
     def __init__(self, source, **kwargs):
         super().__init__(source, delete_message_after=True, timeout=30, **kwargs)
  

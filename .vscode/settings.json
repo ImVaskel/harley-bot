@@ -2,5 +2,8 @@
     "python.pythonPath": "/usr/local/bin/python3.9",
     "python.linting.flake8Enabled": true,
     "python.linting.enabled": true,
-    "errorLens.excludeBySource": ["cSpell"]
+    "errorLens.excludeBySource": [
+        "cSpell"
+    ],
+    "cSpell.enabled": false,
 }

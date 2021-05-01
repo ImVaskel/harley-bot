@@ -1,30 +1,30 @@
-from datetime import datetime
-import logging
-import traceback
+import asyncio
 import collections
+import json
+import logging
+import os
 import sys
-
-from random import choice
+import traceback
 from datetime import datetime
+from random import choice
 from typing import Dict, Optional
 
+import aiohttp
 import asyncdagpi
+import asyncpg
 import discord
+from discord import Message
 from discord.enums import ActivityType
 from discord.ext import commands, ipc
-import json
-import asyncpg
-import aiohttp
-import asyncio
-import os
-
-from discord import Message
 
 os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
 os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True"
 os.environ["JISHAKU_HIDE"] = "True"
 
-async def get_prefix(bot, message: discord.Message):
+async def get_prefix(bot, message: discord.Message) -> str:
+
+    if message.guild is None:
+        return "h,"
 
     cache = bot.cache.get(message.guild.id)
 
@@ -38,10 +38,6 @@ async def get_prefix(bot, message: discord.Message):
 
     return commands.when_mentioned_or(prefix)(bot, message)
 
-mentions = discord.AllowedMentions.none()
-
-activity = discord.Activity(type=ActivityType.listening, name="@Harley")
-
 intent = discord.Intents.default()
 intent.members = True
 
@@ -49,8 +45,8 @@ class HarleyBot(commands.AutoShardedBot):
     def __init__(self, **options):
         super().__init__(get_prefix,
                             intents=intent,
-                            allowed_mentions = mentions,
-                            activity = activity,
+                            allowed_mentions = discord.AllowedMentions.none(),
+                            activity = discord.Activity(type=ActivityType.listening, name="@Harley"),
                             **options)
 
         self._logger = logging.getLogger("Harley")

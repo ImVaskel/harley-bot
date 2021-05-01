@@ -1,11 +1,10 @@
 import discord
-from discord import embeds
 from discord.ext import commands, flags
-from typing import Optional, Union
+from typing import Union
 
 from discord.member import Member
 from discord.user import User
-from utils.subclasses import CustomEmbed
+from utils.subclasses import CustomEmbed, HarleyContext
 
 class Owner(commands.Cog, command_attrs=dict(hidden=True)):
     def __init__(self, bot):
@@ -17,7 +16,7 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
         pass
 
     @flags.add_flag("--all", action="store_true", help="Reloads all cogs")
-    @commands.is_owner()    
+    @commands.is_owner()
     @dev.command(cls = flags.FlagCommand)
     async def reload(self, ctx, cog, **flags):
 
@@ -61,10 +60,10 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
     @dev.command(aliases = (
         "clear", "cleanup"
     ), cls=flags.FlagCommand)
-    async def purge(self, ctx : commands.Context, num : int, **flags):
+    async def purge(self, ctx : commands.Context, num: int, **flags):
         """Purges my messages in the channel"""
         try:
-            msgs = len(await ctx.channel.purge(limit=num, check = lambda m : m.author == self.bot.user, bulk=False))
+            msgs = len(await ctx.channel.purge(limit=num, check = lambda m: m.author == self.bot.user, bulk=False))
         except Exception as e:
             await ctx.reply(
                 embed=CustomEmbed(title=f"An error occurred. \n ```\n{e}```")
@@ -82,8 +81,8 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
             self.bot.load_extension(extension)
             await ctx.reply(embed = CustomEmbed(
                 description=f"Loaded extension `{extension}`"
-                )
-            )
+            ))
+
         except Exception as e:
             await ctx.reply(embed = CustomEmbed(
                 description = f"```py\n{e}```"
@@ -96,20 +95,17 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
             self.bot.unload_extension(extension)
             await ctx.reply(embed = CustomEmbed(
                 description=f"Unloaded extension `{extension}`"
-                )
-            )
+            ))
         except Exception as e:
             await ctx.reply(embed = CustomEmbed(
                 description = f"```py\n{e}```"
-            )
-            )
+            ))
 
     @commands.is_owner()
     @dev.command(aliases=(
             "remove", "del"
-        )
-    )
-    async def delete(self, ctx : commands.Context, message : discord.PartialMessage = None):
+    ))
+    async def delete(self, ctx: HarleyContext, message: discord.PartialMessage = None):
         """Deletes the given message"""
         if ctx.message.reference is not None:
             message = ctx.message.reference.cached_message
@@ -131,7 +127,7 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
             
     @commands.is_owner()
     @dev.command()
-    async def blacklist(self, ctx, user : Union[Member, User], *, reason : str = "None Given"):
+    async def blacklist(self, ctx, user: Union[Member, User], *, reason: str = "None Given"):
         try:
             await self.bot.db.execute("INSERT INTO blacklist(id, reason) VALUES($1, $2)", user.id, reason)
             await ctx.message.add_reaction("\U0001f44d")
@@ -141,12 +137,12 @@ class Owner(commands.Cog, command_attrs=dict(hidden=True)):
         record = await self.bot.db.fetchrow("SELECT * FROM blacklist WHERE id = $1", user.id)
 
         self.bot.blacklisted.update(
-            {record["id"] : record["reason"]}
+            {record["id"]: record["reason"]}
         )
     
     @commands.is_owner()
     @dev.command()
-    async def unblacklist(self, ctx, user : Union[Member, User]):
+    async def unblacklist(self, ctx, user: Union[Member, User]):
         try:
             await self.bot.db.execute("DELETE FROM blacklist WHERE id = $1", user.id)
             await ctx.message.add_reaction("\U0001f44d")

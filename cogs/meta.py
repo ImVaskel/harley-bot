@@ -5,6 +5,9 @@ import discord
 from discord.ext import commands, flags
 from utils.subclasses import CustomEmbed, HarleyContext
 
+BASE_URL = "https://github.com/imvaskel/harley-bot"
+BRANCH = "main"
+
 class Meta(commands.Cog):
     """Module focused on information about the bot."""
     def __init__(self, bot):
@@ -99,7 +102,6 @@ class Meta(commands.Cog):
         )
 
         await ctx.reply(embed = embed)
-
-
+        
 def setup(bot):
     bot.add_cog(Meta(bot))

@@ -1,8 +1,8 @@
+import logging
+
 import discord
 from discord.ext import commands
-from discord import Webhook, AsyncWebhookAdapter
 from utils.subclasses import CustomEmbed, HarleyBot, HarleyContext
-import logging
 
 TIME_TEMPLATE = "%b %d, %Y %I:%M %p"
 MENTION_TEMPLATE = "<@{}>"
@@ -73,10 +73,10 @@ class Listeners(commands.Cog):
         if message.author.bot or message.author == self.bot.user:
             return
 
-        prefixes = await self.bot.get_prefix(message)
-
         if message.content in (MENTION_TEMPLATE.format(f"!{self.bot.user.id}"), MENTION_TEMPLATE.format(
                 self.bot.user.id)):
+
+            prefixes = await self.bot.get_prefix(message)
 
             await message.reply(
                 embed=CustomEmbed(
