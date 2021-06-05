@@ -1,5 +1,3 @@
--- this is a dumped postgres database
-
 --
 -- Name: blacklist; Type: TABLE; Schema: public; Owner: postgres
 --

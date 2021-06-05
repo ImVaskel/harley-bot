@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import sys
+import traceback
 from datetime import datetime
 from random import choice
 from typing import Dict, Optional
@@ -118,7 +119,13 @@ class HarleyBot(commands.AutoShardedBot):
     
     async def on_error(self, event_method, *args, **kwargs):
         self._logger.error(f"An Error Occurred: \n {event_method}\n")
-        self._logger.error(str(sys.exc_info()))
+
+        etype, exc, trace = sys.exc_info()
+
+        lines = traceback.format_exception(etype, exc, trace)
+
+        self._logger.error(''.join(lines))
+
 
     def add_cog(self, cog):
         super(HarleyBot, self).add_cog(cog)

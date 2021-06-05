@@ -1,11 +1,10 @@
 # Harley Bot
 
 ## Info
-To run this bot you must have a postgresql Docker container on a network called `postgres` (look into tutorials on this).
+See [run](run) on how to run the bot.
+## Run
 
-The database info is [found here](schema.sql).
-
-Then fill out the config with the proper info and move it to a file called `config.json`.
+To run the bot, cp `config-template.json` to `config.json`, and fill it out. Then make a `.env` file with the variable `pg_password` set to the same inside your config.
 
 Replace the emojis in `emojis.json`, these emojis are roughly the same as the discord defaults for pagination.
 
@@ -22,13 +21,9 @@ Replace the emojis in `emojis.json`, these emojis are roughly the same as the di
 }
 ```
 
-## Run
+Then run `docker compose up`. 
 
-To run the bot, first build the image with the `build.sh` script. Then run `run.sh` to run the container. 
-
-The docker container runs on `buster-slim` on `python 3.9`. Note that some of the bot is hard coded, so you may have to change some of it.
-
-# **NOTE** 
+# **NOTE**
 This bot is unfinished, and chances are it'll stay that way. Open a PR if you want anything finished and I'll look at it.
 
 ## **Licensing**
