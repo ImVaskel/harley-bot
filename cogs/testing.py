@@ -5,6 +5,7 @@ import re
 
 QUOTE_REGEX = '"(.+?)"'
 
+
 class TestCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -17,6 +18,7 @@ class TestCog(commands.Cog):
     async def on_test_error(self, ctx: HarleyContext, error):
         if isinstance(error, commands.BadArgument):
             await ctx.reply(error.args)
+
 
 def setup(bot):
     bot.add_cog(TestCog(bot))

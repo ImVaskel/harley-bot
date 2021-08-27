@@ -1,4 +1,4 @@
-version: "1.0"
+version: "3.8"
 services:
     postgres:
         restart: always
@@ -7,12 +7,12 @@ services:
             - type: volume
               source: harley-db
               target: /var/lib/postgresql/data
-        environment:
-            - POSTGRES_DB=postgres
-            - POSTGRES_USER=postgres
-            - POSTGRES_PASSWORD=${pg_password}
+        env_file:
+            - "./.env"
     bot:
         restart: always
+        env_file: 
+            - "./.env"
         build: .
         depends_on:
             - postgres

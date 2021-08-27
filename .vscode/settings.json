@@ -6,4 +6,5 @@
         "cSpell"
     ],
     "cSpell.enabled": false,
+    "editor.formatOnSave": true
 }

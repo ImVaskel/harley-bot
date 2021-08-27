@@ -3,9 +3,7 @@ import re
 import discord
 from discord.ext import commands
 from discord.ext.commands.errors import RoleNotFound
-from utils.CustomConverters import OptionsConverter
-from utils.enums import LoggingEnum
-from utils.subclasses import CustomEmbed
+from utils import OptionsConverter, LoggingEnum, Embed as CustomEmbed
 from utils.utils import title_format
 
 NEWLINE = "\n"
@@ -13,18 +11,18 @@ MENTION_REGEX = "<@(!?)([0-9]*)>"
 CODEBLOCK_WITH_SYNTAX = "```{}\n{}```"
 CODEBLOCK = "```\n{}```"
 
+
 class PrefixConverter(commands.Converter):
     async def convert(self, ctx, argument):
-        
+
         parsed = re.search(f"<@(!?){ctx.me.id}>", argument)
 
         if parsed:
-            raise commands.BadArgument(
-                "Prefix cannot contain a reserved string."
-            )
+            raise commands.BadArgument("Prefix cannot contain a reserved string.")
 
         return argument
-    
+
+
 class MuteRoleConverter(commands.Converter):
     async def convert(self, ctx, argument):
         try:
@@ -36,13 +34,16 @@ class MuteRoleConverter(commands.Converter):
                 )
             elif role >= ctx.author.top_role:
                 raise commands.BadArgument(
-                    "The role cannot be above or equal to your top role in the hierarchy.")
+                    "The role cannot be above or equal to your top role in the hierarchy."
+                )
             return role
         except RoleNotFound as e:
             raise e
 
+
 class Settings(commands.Cog):
     """A module that deals with the configuration of the bot"""
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -56,9 +57,9 @@ class Settings(commands.Cog):
         )
         await self.bot.refresh_cache_for(ctx.guild.id)
 
-        await ctx.reply(embed = CustomEmbed(
-            description = f"Successfully set prefix to `{prefix}`"
-        ))
+        await ctx.reply(
+            embed=CustomEmbed(description=f"Successfully set prefix to `{prefix}`")
+        )
 
     @commands.group(name="log")
     @commands.has_guild_permissions(manage_guild=True)
@@ -66,26 +67,26 @@ class Settings(commands.Cog):
     async def log_group(self, ctx: commands.Context):
         if ctx.invoked_subcommand is None:
             await ctx.send_help(ctx.command)
-    
+
     @log_group.command(name="set")
     @commands.has_guild_permissions(manage_guild=True)
     @commands.guild_only()
     async def set_channel(self, ctx, channel: discord.TextChannel):
         """Sets the channel for logging.
-        
+
         NOTE: The bot needs the `view audit log` permission to log. If it doesn't have this permission, it will not send logs.
         """
         if not channel.permissions_for(ctx.me).send_messages:
-            raise commands.BadArgument(
-                "I cannot send messages there!"
-            )
+            raise commands.BadArgument("I cannot send messages there!")
 
-        await self.bot.db.execute("UPDATE config SET logid = $2 WHERE id = $1", ctx.guild.id, channel.id)
+        await self.bot.db.execute(
+            "UPDATE config SET logid = $2 WHERE id = $1", ctx.guild.id, channel.id
+        )
         await self.bot.refresh_cache_for(ctx.guild.id)
 
-        await ctx.reply(embed=CustomEmbed(
-            description = f"Set log channel to {channel.mention}."
-        ))
+        await ctx.reply(
+            embed=CustomEmbed(description=f"Set log channel to {channel.mention}.")
+        )
 
     @log_group.command(name="options")
     @commands.has_guild_permissions(manage_guild=True)
@@ -93,7 +94,7 @@ class Settings(commands.Cog):
     async def log_options(self, ctx, options: commands.Greedy[OptionsConverter]):
         """
         Sets up logging options. Pass options you want and don't pass the ones that you don't want
-        
+
         NOTE: The bot needs the `view audit log` permission to log. If it doesn't have this permission, it will not send logs.
         If you want none, pass `None`
         Options:
@@ -106,17 +107,21 @@ class Settings(commands.Cog):
         ```
         """
         settings = LoggingEnum(sum(options))
-    
-        await self.bot.db.execute("UPDATE config SET options = $2 WHERE id = $1", ctx.guild.id, bin(settings))
 
-        await ctx.reply(embed = CustomEmbed(
-            description = (
-                "Successfully updated logging options to: \n"
-                "```diff\n"
-                f"{NEWLINE.join([f'+ {title_format(str(option))}' for option in list(settings)])}\n"
-                "```"
+        await self.bot.db.execute(
+            "UPDATE config SET options = $2 WHERE id = $1", ctx.guild.id, bin(settings)
+        )
+
+        await ctx.reply(
+            embed=CustomEmbed(
+                description=(
+                    "Successfully updated logging options to: \n"
+                    "```diff\n"
+                    f"{NEWLINE.join([f'+ {title_format(str(option))}' for option in list(settings)])}\n"
+                    "```"
+                )
             )
-        ))
+        )
 
         await self.bot.refresh_cache_for(ctx.guild.id)
 
@@ -126,21 +131,25 @@ class Settings(commands.Cog):
     async def remove_log(self, ctx):
         """Removes the log channel"""
 
-        await self.bot.db.execute("UPDATE config SET logid = $2 WHERE id = $1", ctx.guild.id, None)
+        await self.bot.db.execute(
+            "UPDATE config SET logid = $2 WHERE id = $1", ctx.guild.id, None
+        )
         await self.bot.refresh_cache_for(ctx.guild.id)
 
-        await ctx.reply(embed=CustomEmbed(
-            description = "Removed log channel."
-        ))
-    
+        await ctx.reply(embed=CustomEmbed(description="Removed log channel."))
+
     @log_group.command(name="info")
     @commands.has_guild_permissions(manage_guild=True)
     @commands.guild_only()
     async def log_info(self, ctx):
-        channel = ctx.guild.get_channel(ctx.cache['logid'])
+        channel = ctx.guild.get_channel(ctx.cache["logid"])
         options = self.bot.utils.get_enum(ctx.guild.id)
 
-        channel_info = f"{getattr(channel, 'mention')}" + f" [{getattr(channel, 'id')}]" if channel else ""
+        channel_info = (
+            f"{getattr(channel, 'mention')}" + f" [{getattr(channel, 'id')}]"
+            if channel
+            else ""
+        )
 
         embed = CustomEmbed(
             title="Logging Info",
@@ -149,23 +158,23 @@ class Settings(commands.Cog):
                 "```\n"
                 f"Options: \n{NEWLINE.join([title_format(option) for option in list(options)])}\n"
                 "```"
-            )
+            ),
         )
         await ctx.reply(embed=embed)
-    
+
     @commands.group(name="set")
     @commands.has_guild_permissions(manage_guild=True)
     @commands.guild_only()
     async def set_group(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send_help(ctx.command)
-    
+
     @set_group.command(name="mute")
     @commands.has_guild_permissions(manage_guild=True)
     @commands.guild_only()
     async def set_mute(self, ctx, *, role: MuteRoleConverter):
         """Sets the muted role.
-        
+
         ``Note``: This role has the `send messages` and `add reactions` permissions taken away.
         """
         try:
@@ -175,11 +184,12 @@ class Settings(commands.Cog):
         except Exception as e:
             raise e
         else:
-            await ctx.reply(embed = CustomEmbed(
-                description = f"Successfully set the muted role to {role.mention}"
+            await ctx.reply(
+                embed=CustomEmbed(
+                    description=f"Successfully set the muted role to {role.mention}"
+                )
             )
-            )
-        
+
         permissions = role.permissions
         permissions.send_messages = False
         permissions.add_reactions = False
@@ -187,7 +197,7 @@ class Settings(commands.Cog):
         await role.edit(permissions=permissions, reason="Done automatically.")
 
         await ctx.refresh()
-    
+
     @commands.command()
     @commands.has_guild_permissions(manage_guild=True)
     @commands.guild_only()
@@ -196,13 +206,21 @@ class Settings(commands.Cog):
 
         cache = ctx.cache
 
-        muted_role = ctx.get_role(cache['muteid'])
-        log_channel = ctx.get_channel(cache['logid'])
+        muted_role = ctx.get_role(cache["muteid"])
+        log_channel = ctx.get_channel(cache["logid"])
 
-        options = CODEBLOCK_WITH_SYNTAX.format("diff", "\n".join([f"+ {title_format(option)}" for option in list(self.bot.utils.get_enum(ctx.guild.id))]))
+        options = CODEBLOCK_WITH_SYNTAX.format(
+            "diff",
+            "\n".join(
+                [
+                    f"+ {title_format(option)}"
+                    for option in list(self.bot.utils.get_enum(ctx.guild.id))
+                ]
+            ),
+        )
 
         embed = CustomEmbed(
-            description = (
+            description=(
                 f"Prefix: `{cache['prefix']}`\n"
                 f"Muted Role: {getattr(muted_role, 'mention', 'None')}\n"
                 f"Log Channel: {getattr(log_channel, 'mention', 'None')}\n"
@@ -211,7 +229,6 @@ class Settings(commands.Cog):
         )
 
         await ctx.reply(embed=embed)
-        
 
 
 def setup(bot):

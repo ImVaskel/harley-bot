@@ -12,5 +12,6 @@ class Checks(commands.Cog):
             raise Blacklisted(f"You are blacklisted! Reason: `{reason}`")
         return True
 
+
 def setup(bot):
     bot.add_cog(Checks(bot))

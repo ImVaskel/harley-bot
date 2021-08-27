@@ -21,6 +21,7 @@ os.environ["JISHAKU_NO_UNDERSCORE"] = "True"
 os.environ["JISHAKU_NO_DM_TRACEBACK"] = "True"
 os.environ["JISHAKU_HIDE"] = "True"
 
+
 async def get_prefix(bot, message: discord.Message) -> str:
 
     if message.guild is None:
@@ -31,23 +32,27 @@ async def get_prefix(bot, message: discord.Message) -> str:
     if cache is None:
         cache = bot.cache.get("default")
 
-    prefix = cache.get("prefix", bot.config['prefix'])
+    prefix = cache.get("prefix", bot.config["prefix"])
 
     if prefix is None:
-        prefix = bot.config['prefix']
+        prefix = bot.config["prefix"]
 
     return commands.when_mentioned_or(prefix)(bot, message)
+
 
 intent = discord.Intents.default()
 intent.members = True
 
+
 class HarleyBot(commands.AutoShardedBot):
     def __init__(self, **options):
-        super().__init__(get_prefix,
-                            intents=intent,
-                            allowed_mentions = discord.AllowedMentions.none(),
-                            activity = discord.Activity(type=ActivityType.listening, name="@Harley"),
-                            **options)
+        super().__init__(
+            get_prefix,
+            intents=intent,
+            allowed_mentions=discord.AllowedMentions.none(),
+            activity=discord.Activity(type=ActivityType.listening, name="@Harley"),
+            **options,
+        )
 
         self._logger = logging.getLogger("Harley")
 
@@ -65,17 +70,12 @@ class HarleyBot(commands.AutoShardedBot):
 
         self.ipc = ipc.Server(self, self.config.get("ipc_key"))
         self.load_extension("cogs.ipc")
-        
-        self.db = self.loop.run_until_complete(asyncpg.create_pool(
-            **self.config['db']
-        ))
 
-        self._dagpi = asyncdagpi.Client(self.config['dagpi'], logging=False)
+        self.db = self.loop.run_until_complete(asyncpg.create_pool(**self.config["db"]))
 
-        
-        self.cache.update({
-            "default": {"prefix": self.config['prefix']}
-        })
+        self._dagpi = asyncdagpi.Client(self.config["dagpi"], logging=False)
+
+        self.cache.update({"default": {"prefix": self.config["prefix"]}})
 
         self.load_extension("utils.utils")
 
@@ -88,35 +88,25 @@ class HarleyBot(commands.AutoShardedBot):
 
     async def _ainit(self):
         """Async init"""
-        configs = await self.db.fetch(
-            "SELECT * FROM config"
-        )
-        
+        configs = await self.db.fetch("SELECT * FROM config")
+
         for config in configs:
-            self.cache.update(
-                {config['id']: dict(config)}
-            )
-        
+            self.cache.update({config["id"]: dict(config)})
+
         blacklisted = await self.db.fetch("SELECT * FROM blacklist")
 
         self._hook = await self.utils.get_hook()
 
         for user in blacklisted:
-            self.blacklisted.update(
-                {user["id"]: user["reason"]}
-            )
+            self.blacklisted.update({user["id"]: user["reason"]})
 
     def template(self, record: asyncpg.Record):
-        return {
-            record['id']: dict(record)
-        }
+        return {record["id"]: dict(record)}
 
     async def refresh_cache_for(self, id: int):
         config = await self.db.fetchrow("SELECT * FROM config WHERE id = $1", id)
-        self.cache.update(
-                {config['id']: dict(config)}
-        )
-    
+        self.cache.update({config["id"]: dict(config)})
+
     async def on_error(self, event_method, *args, **kwargs):
         self._logger.error(f"An Error Occurred: \n {event_method}\n")
 
@@ -124,8 +114,7 @@ class HarleyBot(commands.AutoShardedBot):
 
         lines = traceback.format_exception(etype, exc, trace)
 
-        self._logger.error(''.join(lines))
-
+        self._logger.error("".join(lines))
 
     def add_cog(self, cog):
         super(HarleyBot, self).add_cog(cog)
@@ -133,14 +122,14 @@ class HarleyBot(commands.AutoShardedBot):
         if (aliases := getattr(cog, "aliases", None)) is not None:
             for alias in aliases:
                 self._BotBase__cogs[alias] = cog
-    
+
     def remove_cog(self, name):
 
         cog = self.get_cog(name)
 
         super(HarleyBot, self).remove_cog(name)
 
-        if (aliases := getattr(cog, 'aliases', None)) is not None:
+        if (aliases := getattr(cog, "aliases", None)) is not None:
             for alias in aliases:
                 self._BotBase__cogs.pop(alias)
 
@@ -152,10 +141,12 @@ class HarleyBot(commands.AutoShardedBot):
                 self.load_extension(cog)
                 logger.info(f"Loaded {cog}")
             except Exception as e:
-                logger.error(f"{cog} failed to load: {e}")
+                logger.exception(f"{cog} failed to load")
 
-    def run(self, token: str = None, *, bot: bool = True, reconnect: bool = True) -> None:
-        return super().run(token or self.config["token"], bot=bot, reconnect=reconnect)
+    def run(self, token: str = None) -> None:
+        return super().run(
+            token or self.config["token"],
+        )
 
     async def on_ipc_ready(self):
         self._logger.info("IPC Ready.")
@@ -163,7 +154,7 @@ class HarleyBot(commands.AutoShardedBot):
     @property
     def session(self):
         return self._session
-    
+
     @property
     def hook(self):
         return self._hook
@@ -171,42 +162,41 @@ class HarleyBot(commands.AutoShardedBot):
     @property
     def logger(self):
         return self._logger
-    
+
     @property
     def dagpi(self):
         return self._dagpi
-    
+
+
 class HarleyContext(commands.Context):
-    
     @property
     def cache(self):
         return self.bot.cache[self.guild.id]
-    
+
     @property
     def db(self):
         return self.bot.db
 
     @property
     def mapped_message(self) -> Optional[Message]:
-        """ Returns the mapped message to this ctx, if any."""
+        """Returns the mapped message to this ctx, if any."""
         return self.bot.edit_mapping.get(self.message)
-
 
     async def refresh(self):
         await self.bot.refresh_cache_for(self.guild.id)
-    
+
     def get_role(self, id):
         return self.guild.get_role(id)
-    
+
     def get_channel(self, id):
         return self.guild.get_channel(id)
 
-    async def reply(self, content= None, **kwargs):
-        
+    async def reply(self, content=None, **kwargs):
+
         if self.bot.edit_mapping.get(self.message):
 
             if "embed" not in kwargs:
-                kwargs["embed"] = None # why, this is literally the same as popping it
+                kwargs["embed"] = None  # why, this is literally the same as popping it
 
             msg = self.bot.edit_mapping.get(self.message)
             await msg.edit(content=content, **kwargs)
@@ -215,15 +205,15 @@ class HarleyContext(commands.Context):
         msg = await super().reply(content=content, **kwargs)
 
         self.bot.edit_mapping[self.message] = msg
-        
+
         return msg
 
-    async def send(self, content = None, **kwargs):
+    async def send(self, content=None, **kwargs):
 
         if self.bot.edit_mapping.get(self.message):
             if "embed" not in kwargs:
                 kwargs["embed"] = None
-            
+
             msg = self.bot.edit_mapping.get(self.message)
             await msg.edit(content=content, **kwargs)
             return msg
@@ -231,7 +221,7 @@ class HarleyContext(commands.Context):
         msg = await super().send(content=content, **kwargs)
 
         self.bot.edit_mapping[self.message] = msg
-        
+
         return msg
 
     async def confirm(self, text=None, **kwargs):
@@ -239,7 +229,7 @@ class HarleyContext(commands.Context):
 
         reactions = [
             self.bot.custom_emojis["x-mark"],
-            self.bot.custom_emojis["checkmark"]
+            self.bot.custom_emojis["checkmark"],
         ]
 
         if (embed := kwargs.pop("embed", None)) is not None:
@@ -253,45 +243,51 @@ class HarleyContext(commands.Context):
             await msg.add_reaction(reaction)
 
         try:
-            reaction, user = await self.bot.wait_for("reaction_add",
-                                                     check=(
-                                                         lambda r, u: r.message.id == msg.id and u.id == self.author.id and str(r) in reactions
-                                                     ), timeout=30)
+            reaction, user = await self.bot.wait_for(
+                "reaction_add",
+                check=(
+                    lambda r, u: r.message.id == msg.id
+                    and u.id == self.author.id
+                    and str(r) in reactions
+                ),
+                timeout=30,
+            )
             return bool(reactions.index(str(reaction)))
         except asyncio.TimeoutError:
-            await self.reply(embed = CustomEmbed(description="You did not react in time."))
+            await self.reply(
+                embed=CustomEmbed(description="You did not react in time.")
+            )
             return False
+
 
 class CustomEmbed(discord.Embed):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self.color = kwargs.get("color", choice([0x4ba893, 0xc46d6c]))
-        self.timestamp = kwargs.get("timestamp", datetime.utcnow())
+        self.color = kwargs.get("color", choice([0x4BA893, 0xC46D6C]))
+        self.timestamp = kwargs.get("timestamp", discord.utils.utcnow())
 
-    async def reply(self, message, **kwargs):
-        """Good fucking lord, why did i make this"""
-        await message.reply(embed=self, **kwargs)
 
 # Shamelessly stolen from https://gist.github.com/bencharb/729971d4a9e4633ea08a
 class CappedDict(collections.OrderedDict):
     default_max_size = 100
 
     def __init__(self, *args, **kwargs):
-        self.max_size = kwargs.pop('max_size', self.default_max_size)
+        self.max_size = kwargs.pop("max_size", self.default_max_size)
         super(CappedDict, self).__init__(*args, **kwargs)
-        
+
     def __setitem__(self, key, val):
         if key not in self:
-            max_size = self.max_size - 1  # so the dict is sized properly after adding a key
+            max_size = (
+                self.max_size - 1
+            )  # so the dict is sized properly after adding a key
             self._prune_dict(max_size)
         super(CappedDict, self).__setitem__(key, val)
-        
+
     def update(self, **kwargs):
         super(CappedDict, self).update(**kwargs)
         self._prune_dict(self.max_size)
 
-        
     def _prune_dict(self, max_size):
         if len(self) >= max_size:
             diff = len(self) - max_size

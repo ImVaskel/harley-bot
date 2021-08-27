@@ -13,27 +13,34 @@ class Utilities:
         self.mystbin = mystbin.Client()
 
     async def hook(self, url) -> discord.Webhook:
-        return discord.Webhook.from_url(url, adapter=discord.AsyncWebhookAdapter(self.bot.session))
+        return discord.Webhook.from_url(
+            url, adapter=discord.AsyncWebhookAdapter(self.bot.session)
+        )
 
     async def get_hook(self) -> discord.Webhook:
-        return discord.Webhook.from_url(self.bot.config['webhook'], adapter=discord.AsyncWebhookAdapter(self.bot.session))
+        return discord.Webhook.from_url(
+            self.bot.config["webhook"], session=self.bot.session
+        )
 
     async def paste(self, text, syntax=None) -> str:
         url = await self.mystbin.post(text, syntax=syntax)
         return url.url
-    
+
     def get_enum(self, id) -> LoggingEnum:
         try:
-            return LoggingEnum(int(self.bot.cache[id].get('options', '0'), 2))
+            return LoggingEnum(int(self.bot.cache[id].get("options", "0"), 2))
         except (ValueError, TypeError):
             return LoggingEnum.NONE
+
 
 TIME_TEMPLATE = "%b %d, %Y %I:%M %p"
 YES_NO = ["No", "Yes"]
 
+
 def title_format(input: str):
     """Formats a string from `blah_blah` to `Blah Blah`"""
     return input.title().replace("_", " ").replace("-", " ")
+
 
 async def get_audit(guild: discord.Guild, action: discord.AuditLogAction):
     """Gets audit logs from a given action with a limit of 1"""
@@ -44,6 +51,7 @@ async def get_audit(guild: discord.Guild, action: discord.AuditLogAction):
         return log
     except (discord.Forbidden, IndexError):
         return None
+
 
 class Timer:
     __slots__ = ("start_time", "end_time")
@@ -68,6 +76,7 @@ class Timer:
     @property
     def elapsed(self):
         return self.end_time - self.start_time
+
 
 def setup(bot):
     bot.utils = Utilities(bot)
