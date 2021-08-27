@@ -6,7 +6,6 @@ git+https://github.com/oliver-ni/discord-ext-menus-views
 git+https://github.com/Gorialis/jishaku
 mystbin.py==2.1.0
 Markdown==3.3.3
-MarkupSafe==1.1.1
 asyncdagpi
 coloredlogs
 psutil

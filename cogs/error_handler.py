@@ -2,7 +2,7 @@ import logging
 import traceback
 from functools import cached_property
 
-from discord.ext import commands, flags
+from discord.ext import commands
 from utils.CustomErrors import Blacklisted
 from utils.subclasses import CustomEmbed
 
@@ -22,7 +22,6 @@ class ErrorHandler(commands.Cog):
             commands.MissingPermissions,
             commands.BotMissingPermissions,
             commands.TooManyArguments,
-            flags.ArgumentParsingError,
             commands.BadUnionArgument,
         )
 
