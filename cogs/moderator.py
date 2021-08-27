@@ -149,16 +149,6 @@ class Moderator(commands.Cog):
                 )
             )
 
-    @flags.add_flag(
-        "--force", action="store_true", help="Forces a ban without notifying the user."
-    )
-    @flags.add_flag("--reason", help="The reason for the ban.")
-    @flags.add_flag(
-        "--delete",
-        type=int,
-        default=1,
-        help="The number of days worth of messages to delete from the member. Max is 7.",
-    )
     @commands.command()
     @commands.has_guild_permissions(ban_members=True)
     @commands.bot_has_guild_permissions(ban_members=True)
