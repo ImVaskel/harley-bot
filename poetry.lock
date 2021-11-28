@@ -696,10 +696,14 @@ python-versions = ">=3.6"
 docs = ["sphinx", "jaraco.packaging (>=8.2)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
 
+[extras]
+aiohttp = []
+"discord.py" = []
+
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "7d4a0b8589394f64d89f8a55a8384d21ef1f615220dfad2b7fac06a225425d39"
+content-hash = "e5b295f02789e3e701fc8825a677e66637c0842bcb79c302c192d00a6a1117bd"
 
 [metadata.files]
 aiohttp = [
