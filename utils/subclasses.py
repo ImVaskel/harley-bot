@@ -73,7 +73,7 @@ class HarleyBot(commands.AutoShardedBot):
 
         self.db = self.loop.run_until_complete(asyncpg.create_pool(**self.config["db"]))
 
-        self._dagpi = asyncdagpi.Client(self.config["dagpi"], logging=False)
+        self._dagpi = asyncdagpi.Client(self.config["dagpi"])
 
         self.cache.update({"default": {"prefix": self.config["prefix"]}})
 

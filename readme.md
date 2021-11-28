@@ -21,7 +21,9 @@ Replace the emojis in `emojis.json`, these emojis are roughly the same as the di
 }
 ```
 
-Then run `docker compose up`. 
+Then run `docker compose up`.
+Alternatively, you can install poetry and just run `poetry install`, then `poetry run python main.py` if you do 
+not want to use docker.
 
 # **NOTE**
 This bot is unfinished, and chances are it'll stay that way. Open a PR if you want anything finished and I'll look at it.

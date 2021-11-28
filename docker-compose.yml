@@ -11,11 +11,20 @@ services:
             - "./.env"
     bot:
         restart: always
-        env_file: 
+        env_file:
             - "./.env"
         build: .
         depends_on:
             - postgres
-        command: ["./wait-for-it.sh", "postgres:5432", "--", "python", "main.py"]
+        command:
+            [
+                "./wait-for-it.sh",
+                "postgres:5432",
+                "--",
+                "poetry",
+                "run",
+                "python",
+                "main.py"
+            ]
 volumes:
-    harley-db:
+    harley-db: null

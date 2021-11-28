@@ -70,7 +70,7 @@ class ErrorHandler(commands.Cog):
                     description=f"An error occurred! \n URL: {paste}"
                 ).set_footer(text=f"Caused by {ctx.command}"),
                 username=str(ctx.author),
-                avatar_url=ctx.author.avatar_url,
+                avatar_url=ctx.author.avatar,
             )
 
             self.logger.exception(f"{ctx.command.name} \n{traceback_text}")
