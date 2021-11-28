@@ -1,5 +1,5 @@
 [tool.poetry]
-authors = ["Imvaskel <contact@vaskel.gay>"]
+authors = ["ImVaskel <contact@vaskel.gay>"]
 description = "A multipurpose discord bot."
 license = "AGPL"
 name = "harley-bot"
@@ -26,7 +26,6 @@ black = "^21.11b1"
 
 [tool.poetry.extras]
 aiohttp = ["speedups"]
-"discord.py" = ["speed"]
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
